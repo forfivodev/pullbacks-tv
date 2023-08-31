@@ -1,0 +1,128 @@
+//@version=5
+// © GM 2023
+
+indicator("Pullback", shorttitle="Pullback", overlay=true, precision = 2)
+tf_pb                       = input.string("D", "Timeframe", ["5", "15", "30", "60", "120", "240", "D", "2D", "3D", "4D", "5D", "W", "M", "3M", "6M", "12M"], inline = "0")
+short_mode_pb               = input(true, "Short mode")
+input_start_pb              = input.int(2, "Bar start", -9999999999, 9999999999, 1, inline="bar_offset")
+input_end_pb                = input.int(8, "Bar end", -9999999999, 9999999999, 1, inline="bar_offset")
+label_offset_pb             = input.int(3, "Label offset", -9999999999, 9999999999, 1, inline="bar_offset")
+day_high_color              = input.color(color.rgb(255, 71, 71, 67), "High", inline="highlow")
+day_low_color               = input.color(color.rgb(105, 255, 72, 63), "Low", inline="highlow")
+width_pb                    = input(1, "Width")
+var string ticker = syminfo.tickerid
+
+intervalHigh  = request.security(ticker, tf_pb, high, barmerge.gaps_off)
+intervalLow  = request.security(ticker, tf_pb, low, barmerge.gaps_off)
+intervalOpen  = request.security(ticker, tf_pb, open, barmerge.gaps_off)
+
+//draw_apr_hilo(intervalHigh, intervalLow, "D", color.red, color.lime, 5, 1, line.style_solid)
+
+is_new_day = ta.change(time(tf_pb))
+bar_idx_prev_day = bar_index - ta.valuewhen(is_new_day, bar_index, 0)
+
+if barstate.islast
+    start_bar = short_mode_pb ? bar_index + input_start_pb : bar_index - bar_idx_prev_day
+    end_bar = short_mode_pb ? bar_index + input_end_pb : bar_index
+    highLine = box.new(start_bar, intervalHigh, end_bar, intervalHigh * 0.9970, extend = extend.none, bgcolor = day_high_color, border_color = color.new(day_high_color, 0), border_style = line.style_dashed, border_width = 2)
+    lowLine = box.new(start_bar, intervalLow * 1.003, end_bar, intervalLow, extend = extend.none, bgcolor = day_low_color, border_color = color.new(day_low_color, 0), border_style = line.style_dashed, border_width = 2)
+    box.delete(highLine[1])
+    box.delete(lowLine[1])
+
+    // high100Line = box.new(start_bar, intervalHigh * 0.99, bar_index, intervalHigh * 0.98875, extend = extend.none, bgcolor = day_high_color, border_color = day_high_color, border_width = 0)
+    // box.delete(high100Line[1])
+
+    // low100Line = box.new(start_bar, intervalLow * 1.01, bar_index, intervalLow * 1.01125, extend = extend.none, bgcolor = day_low_color, border_color = day_low_color, border_width = 0)
+    // box.delete(low100Line[1])
+    high300Line = line.new(start_bar, intervalHigh * 0.97, end_bar, intervalHigh * 0.97, extend = extend.none, color = color.new(day_high_color, 0), width = width_pb)
+    line.delete(high300Line[1])
+    high300label = label.new(end_bar - label_offset_pb, intervalHigh * 0.97, "3", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_high_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(high300label[1])
+
+    high250Line = line.new(start_bar, intervalHigh * 0.975, end_bar, intervalHigh * 0.975, extend = extend.none, color = color.new(day_high_color, 0), width = width_pb)
+    line.delete(high250Line[1])
+    high250label = label.new(end_bar - label_offset_pb, intervalHigh * 0.975, "2.5", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_high_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(high250label[1])
+
+    high200Line = line.new(start_bar, intervalHigh * 0.98, end_bar, intervalHigh * 0.98, extend = extend.none, color = color.new(day_high_color, 0), width = width_pb)
+    line.delete(high200Line[1])
+    high200label = label.new(end_bar - label_offset_pb, intervalHigh * 0.98, "2", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_high_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(high200label[1])
+
+    high150Line = line.new(start_bar, intervalHigh * 0.985, end_bar, intervalHigh * 0.985, extend = extend.none, color = color.new(day_high_color, 0), width = width_pb)
+    line.delete(high150Line[1])
+    high150label = label.new(end_bar - label_offset_pb, intervalHigh * 0.985, "1.5", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_high_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(high150label[1])
+
+    high100Line = line.new(start_bar, intervalHigh * 0.99, end_bar, intervalHigh * 0.99, extend = extend.none, color = color.new(day_high_color, 0), width = width_pb)
+    line.delete(high100Line[1])
+    high100label = label.new(end_bar - label_offset_pb, intervalHigh * 0.99, "1", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_high_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(high100label[1])
+
+    high050Line = line.new(start_bar, intervalHigh * 0.995, end_bar, intervalHigh * 0.995, extend = extend.none, color = color.new(day_high_color, 0), width = width_pb)
+    line.delete(high050Line[1])
+    high050label = label.new(end_bar - label_offset_pb, intervalHigh * 0.995, "0.5", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_high_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(high050label[1])    
+
+    low300Line = line.new(start_bar, intervalLow * 1.03, end_bar, intervalLow * 1.03, extend = extend.none, color = color.new(day_low_color, 0), width = width_pb)
+    line.delete(low300Line[1])
+    low300label = label.new(end_bar - label_offset_pb, intervalLow * 1.03, "3", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_low_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(low300label[1])
+
+    low250Line = line.new(start_bar, intervalLow * 1.025, end_bar, intervalLow * 1.025, extend = extend.none, color = color.new(day_low_color, 0), width = width_pb)
+    line.delete(low250Line[1])
+    low250label = label.new(end_bar - label_offset_pb, intervalLow * 1.025, "2.5", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_low_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(low250label[1])
+
+    low200Line = line.new(start_bar, intervalLow * 1.02, end_bar, intervalLow * 1.02, extend = extend.none, color = color.new(day_low_color, 0), width = width_pb)
+    line.delete(low200Line[1])
+    low200label = label.new(end_bar - label_offset_pb, intervalLow * 1.02, "2", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_low_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(low200label[1])
+
+    low150Line = line.new(start_bar, intervalLow * 1.015, end_bar, intervalLow * 1.015, extend = extend.none, color = color.new(day_low_color, 0), width = width_pb)
+    line.delete(low150Line[1])
+    low150label = label.new(end_bar - label_offset_pb, intervalLow * 1.015, "1.5", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_low_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(low150label[1])
+
+    low100Line = line.new(start_bar, intervalLow * 1.01, end_bar, intervalLow * 1.01, extend = extend.none, color = color.new(day_low_color, 0), width = width_pb)
+    line.delete(low100Line[1])
+    low100label = label.new(end_bar - label_offset_pb, intervalLow * 1.01, "1", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_low_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(low100label[1])
+
+    low050Line = line.new(start_bar, intervalLow * 1.005, end_bar, intervalLow * 1.005, extend = extend.none, color = color.new(day_low_color, 0), width = width_pb)
+    line.delete(low050Line[1])
+    low050label = label.new(end_bar - label_offset_pb, intervalLow * 1.005, "0.5", color = color.rgb(54, 58, 69, 100), textcolor = color.new(day_low_color, 0), yloc = yloc.price, style = label.style_label_left)
+    label.delete(low050label[1])
+
+    index_high  =  - ta.highestbars(bar_idx_prev_day > 0 ? bar_idx_prev_day : 1) 
+    index_low  = - ta.lowestbars(bar_idx_prev_day > 0 ? bar_idx_prev_day : 1) 
+
+
+
+
+//plotchar(index_low, "index_low", "", location.bottom, size = size.small)
+//plotchar(index_high, "index_high", "", location.bottom, size = size.small)
+//plotcandle(open, high, low, close, color = candleColor, wickcolor = candleColor, bordercolor = candleColor)
+//barcolor(candleColor)
+// barcolor(condition == 12 ? extremeUpCandleColor : na)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
